@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>召喚寵物戰鬥訓練師</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="game-shell">
+    <section class="scoreboard" aria-label="比分">
+      <div>
+        <span class="label">血量</span>
+        <strong id="playerScore">0</strong>
+      </div>
+      <div class="round-pill"><span id="roundNumber">金幣 0</span></div>
+      <div>
+        <span class="label">敵人</span>
+        <strong id="opponentScore">0</strong>
+      </div>
+    </section>
+
+    <section class="map-screen" id="mapScreen">
+      <div class="map-header">
+        <div>
+          <h1>召喚寵物戰鬥訓練師</h1>
+          <p id="mapText">丟骰子後，點選亮起的格子移動。遇到敵人就派寵物戰鬥。</p>
+        </div>
+        <div class="dice-panel">
+          <div class="dice" id="diceValue">?</div>
+          <button class="primary-btn" id="diceButton" type="button">丟骰子</button>
+        </div>
+      </div>
+      <div class="map-panels">
+        <section class="pet-panel">
+          <h2>寵物隊伍</h2>
+          <div class="pet-roster" id="deckChoices"></div>
+        </section>
+        <section class="shop-panel">
+          <h2>商店</h2>
+          <div class="shop-actions">
+            <button class="secondary-btn" id="healButton" type="button">回血 20G</button>
+            <button class="secondary-btn" id="reviveButton" type="button">復活 30G</button>
+            <button class="secondary-btn" id="trainButton" type="button">訓練 25G</button>
+          </div>
+        </section>
+      </div>
+      <div class="map-board" id="mapBoard" aria-label="9x9 遊戲地圖"></div>
+    </section>
+
+    <section class="table is-hidden" id="battleScreen">
+      <div class="side opponent-side">
+        <h1>寵物戰鬥</h1>
+        <p id="statusText">選擇一隻寵物出戰。</p>
+        <div class="opponent-hand" id="opponentHand" aria-label="敵方寵物"></div>
+      </div>
+
+      <div class="battlefield" aria-label="對戰區">
+        <article class="played-card hidden-card" id="opponentPlayed">
+          <span class="card-mark">?</span>
+          <small>對手蓋牌</small>
+        </article>
+        <div class="versus">VS</div>
+        <article class="played-card empty-card" id="playerPlayed">
+          <span class="card-mark">+</span>
+          <small>選一張牌</small>
+        </article>
+      </div>
+
+      <div class="side player-side">
+        <div class="deck-builder" id="deckBuilder">
+          <h2>選擇出戰寵物</h2>
+          <div class="choices" id="battleChoices"></div>
+          <div class="deck-slots" id="deckSlots" aria-label="你的牌組"></div>
+          <button class="primary-btn" id="startButton" type="button" disabled>開始戰鬥</button>
+        </div>
+
+        <div class="hand-area is-hidden" id="handArea">
+          <h2>戰鬥指令</h2>
+          <div class="player-hand" id="playerHand" aria-label="你的手牌"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="log-panel" aria-live="polite">
+      <div id="resultText">等待你建立牌組。</div>
+      <button class="secondary-btn is-hidden" id="continueButton" type="button">返回地圖</button>
+      <button class="secondary-btn" id="resetButton" type="button">重新開始</button>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
