@@ -237,6 +237,22 @@ function roleIcon(role) {
   return { attack: '攻', support: '輔', guard: '防', heal: '癒' }[role] || '寵';
 }
 
+function petCombatPower(pet) {
+  const roleBonus = { attack: 14, support: 11, guard: 13, heal: 12 }[pet.role] || 10;
+  const base = pet.level * 12 + pet.maxHp * 0.9 + pet.power * 5.5 + pet.speed * 4.2 + roleBonus;
+  const hpRate = pet.maxHp > 0 ? pet.hp / pet.maxHp : 0;
+  const condition = pet.hp <= 0 ? 0 : 0.65 + hpRate * 0.35;
+  return Math.max(0, Math.round(base * condition));
+}
+
+function teamCombatPower(team = state.pets) {
+  return team.reduce((total, pet) => total + petCombatPower(pet), 0);
+}
+
+function petDetailTitle(pet) {
+  return `${pet.name}｜戰${petCombatPower(pet)}｜${elements[pet.element].name}/${roleIcon(pet.role)}｜Lv.${pet.level}｜HP ${pet.hp}/${pet.maxHp}｜拳 ${pet.power}｜速 ${pet.speed}`;
+}
+
 function buildMapEntities() {
   state.bosses = new Set(BOSS_CELLS);
   state.enemies = new Set();
@@ -273,12 +289,11 @@ function getAvailableMoves(range) {
 }
 
 function renderPetCard(pet, note = '', compact = false) {
-  const hp = `${pet.hp}/${pet.maxHp}`;
   return `
     <span class="pet-icon element-${pet.element}">${pet.icon}</span>
     <strong>${pet.name}</strong>
     <small class="stat-line"><span>${elements[pet.element].icon}</span><span>${roleIcon(pet.role)}</span><span>Lv.${pet.level}</span></small>
-    <small class="stat-line"><span>♥ ${hp}</span><span>拳 ${pet.power}</span><span>速 ${pet.speed}</span></small>
+    <small class="power-line"><span>戰</span><strong>${petCombatPower(pet)}</strong></small>
     ${compact ? '' : `<small>${note || `EXP ${pet.exp}/${nextExp(pet)}`}</small>`}
   `;
 }
@@ -290,6 +305,7 @@ function renderRoster() {
     button.className = pet.id === state.activePetId ? 'pet-card selected-pet' : 'pet-card';
     if (pet.hp <= 0) button.classList.add('fainted-pet');
     button.type = 'button';
+    button.title = petDetailTitle(pet);
     button.innerHTML = renderPetCard(pet, index < MAX_FIELD_PETS ? '上場' : '後備');
     button.addEventListener('click', () => {
       state.activePetId = pet.id;
@@ -326,6 +342,7 @@ function renderProfile() {
     <div><span>EXP</span><strong>${state.trainer.exp}/${nextTrainerExp()}</strong></div>
     <div><span>AP</span><strong>${state.trainer.ap}/${state.trainer.apMax}</strong></div>
     <div><span>G</span><strong>${state.gold}</strong></div>
+    <div><span>戰</span><strong>${teamCombatPower(livingPets())}</strong></div>
     <div><span>隊</span><strong>${teamText()}</strong></div>
     <div><span>敵</span><strong>${threatText()}</strong></div>
     <div><span>具</span><strong>${itemSummary}</strong></div>
@@ -551,6 +568,7 @@ function renderCombatCard(pet, isPlayer) {
   card.className = pet.hp > 0 ? 'pet-card combat-card' : 'pet-card combat-card fainted-pet';
   if (state.battle?.waitingPetId === pet.id) card.classList.add('ready-card');
   const charge = Math.min(100, Math.floor(pet.charge || 0));
+  card.title = petDetailTitle(pet);
   card.innerHTML = `${renderPetCard(pet, '', true)}<div class="charge"><span style="width:${charge}%"></span></div>`;
   if (isPlayer) {
     card.addEventListener('click', () => {

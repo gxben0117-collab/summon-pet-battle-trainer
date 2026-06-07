@@ -381,6 +381,24 @@ h2 {
   text-overflow: ellipsis;
 }
 
+.power-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 56px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(246, 190, 76, .16);
+  color: var(--gold);
+  font-weight: 900;
+}
+
+.power-line strong {
+  color: var(--gold);
+  font-size: .82rem;
+}
+
 .selected-pet,
 .ready-card {
   border-color: var(--green);
@@ -531,6 +549,17 @@ h2 {
 .team-side .combat-card small,
 .team-side .combat-card .stat-line {
   display: none;
+}
+
+.team-side .combat-card .power-line {
+  display: inline-flex;
+  min-width: 42px;
+  padding: 1px 5px;
+  font-size: .62rem;
+}
+
+.team-side .combat-card .power-line strong {
+  font-size: .66rem;
 }
 
 .team-side .combat-card .pet-icon {
@@ -786,7 +815,7 @@ h2 {
   .team-side .combat-team {
     width: 100%;
     grid-template-columns: repeat(2, minmax(40px, 1fr));
-    grid-template-rows: repeat(5, 34px);
+    grid-template-rows: repeat(5, 42px);
     gap: 3px 5px;
     overflow: hidden;
   }
@@ -796,7 +825,7 @@ h2 {
   }
 
   .team-side .combat-card {
-    height: 34px;
+    height: 42px;
     min-height: 0;
     padding: 2px;
     border-width: 1px;
@@ -808,7 +837,21 @@ h2 {
   }
 
   .team-side .combat-card strong {
-    font-size: .58rem;
+    display: none;
+  }
+
+  .team-side .combat-card .power-line {
+    min-width: 30px;
+    padding: 1px 4px;
+  }
+
+  .team-side .combat-card .power-line span {
+    display: none;
+  }
+
+  .team-side .combat-card .power-line strong {
+    display: block;
+    font-size: .62rem;
   }
 
   .pet-card {
