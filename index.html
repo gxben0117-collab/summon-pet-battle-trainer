@@ -8,14 +8,14 @@
 </head>
 <body>
   <main class="game-shell">
-    <section class="scoreboard" aria-label="比分">
+    <section class="scoreboard" aria-label="遊戲狀態">
       <div>
         <span class="label">隊伍</span>
-        <strong id="playerScore">0</strong>
+        <strong id="playerScore">0/0</strong>
       </div>
       <div class="round-pill"><span id="roundNumber">金幣 0</span></div>
       <div>
-        <span class="label">敵人</span>
+        <span class="label">威脅</span>
         <strong id="opponentScore">0</strong>
       </div>
     </section>
@@ -24,45 +24,83 @@
       <div class="map-header">
         <div>
           <h1>召喚寵物戰鬥訓練師</h1>
-          <p id="mapText">你移動後敵方會追殺。遇到敵人就整隊寵物自動戰鬥。</p>
+          <p id="mapText">10x10 地圖。你移動後，敵人會追殺；村民與道具能幫你撐到打倒 3 位 Boss。</p>
         </div>
         <div class="dice-panel">
           <div class="dice" id="diceValue">?</div>
           <button class="primary-btn" id="diceButton" type="button">丟骰子</button>
         </div>
       </div>
-      <div class="map-panels">
+
+      <div class="map-layout">
         <section class="pet-panel">
-          <h2>寵物隊伍</h2>
+          <div class="panel-title">
+            <h2>寵物隊伍</h2>
+            <span id="teamSummary">全隊自動戰鬥</span>
+          </div>
           <div class="pet-roster" id="deckChoices"></div>
         </section>
-        <section class="shop-panel">
-          <h2>商店</h2>
-          <div class="shop-actions">
-            <button class="secondary-btn" id="healButton" type="button">回血 20G</button>
-            <button class="secondary-btn" id="trainButton" type="button">訓練 25G</button>
+
+        <section class="map-board-wrap">
+          <div class="legend-row">
+            <span><b class="legend hero"></b>訓練師</span>
+            <span><b class="legend enemy"></b>敵</span>
+            <span><b class="legend boss"></b>Boss</span>
+            <span><b class="legend villager"></b>村</span>
+            <span><b class="legend item"></b>物</span>
           </div>
+          <div class="map-board" id="mapBoard" aria-label="10x10 遊戲地圖"></div>
         </section>
+
+        <aside class="side-panels">
+          <section class="shop-panel">
+            <div class="panel-title">
+              <h2>商店</h2>
+              <span>無復活</span>
+            </div>
+            <div class="shop-actions">
+              <button class="secondary-btn" id="healButton" type="button">群體回血 25G</button>
+              <button class="secondary-btn" id="trainButton" type="button">訓練主力 30G</button>
+              <button class="secondary-btn" id="buyPotionButton" type="button">藥草 15G</button>
+              <button class="secondary-btn" id="buyWardButton" type="button">守護符 20G</button>
+            </div>
+          </section>
+
+          <section class="bag-panel">
+            <div class="panel-title">
+              <h2>背包</h2>
+              <span>道具</span>
+            </div>
+            <div class="bag-actions" id="bagActions"></div>
+          </section>
+
+          <section class="event-panel">
+            <div class="panel-title">
+              <h2>事件</h2>
+              <span>村民幫助</span>
+            </div>
+            <div id="eventText">找村民、撿道具、避開追殺。</div>
+          </section>
+        </aside>
       </div>
-      <div class="map-board" id="mapBoard" aria-label="9x9 遊戲地圖"></div>
     </section>
 
     <section class="table is-hidden" id="battleScreen">
       <div class="side opponent-side">
         <h1>寵物戰鬥</h1>
-        <p id="statusText">選擇一隻寵物出戰。</p>
+        <p id="statusText">全隊自動上場。</p>
         <div class="opponent-hand" id="opponentHand" aria-label="敵方寵物"></div>
       </div>
 
       <div class="battlefield" aria-label="對戰區">
         <article class="played-card hidden-card" id="opponentPlayed">
-          <span class="card-mark">?</span>
-          <small>對手蓋牌</small>
+          <span class="card-mark">敵</span>
+          <small>敵方先鋒</small>
         </article>
         <div class="versus">VS</div>
         <article class="played-card empty-card" id="playerPlayed">
-          <span class="card-mark">+</span>
-          <small>選一張牌</small>
+          <span class="card-mark">我</span>
+          <small>我方先鋒</small>
         </article>
       </div>
 
@@ -70,19 +108,19 @@
         <div class="deck-builder" id="deckBuilder">
           <h2>出戰隊伍</h2>
           <div class="choices" id="battleChoices"></div>
-          <div class="deck-slots" id="deckSlots" aria-label="你的牌組"></div>
+          <div class="deck-slots" id="deckSlots" aria-label="戰鬥規則"></div>
           <button class="primary-btn" id="startButton" type="button" disabled>開始自動戰鬥</button>
         </div>
 
         <div class="hand-area is-hidden" id="handArea">
-          <h2>自動戰鬥</h2>
-          <div class="player-hand" id="playerHand" aria-label="你的手牌"></div>
+          <h2>戰鬥紀錄</h2>
+          <div class="battle-log" id="playerHand"></div>
         </div>
       </div>
     </section>
 
     <section class="log-panel" aria-live="polite">
-      <div id="resultText">等待你建立牌組。</div>
+      <div id="resultText">準備開始冒險。</div>
       <button class="secondary-btn is-hidden" id="continueButton" type="button">返回地圖</button>
       <button class="secondary-btn" id="resetButton" type="button">重新開始</button>
     </section>
