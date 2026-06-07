@@ -479,12 +479,55 @@ h2 {
   gap: 8px;
 }
 
+.team-side {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.team-side h2 {
+  font-size: 1rem;
+}
+
+.player-side {
+  text-align: left;
+}
+
+.enemy-side {
+  text-align: right;
+}
+
+.team-side .combat-team {
+  grid-template-columns: repeat(5, minmax(48px, 92px));
+  overflow: hidden;
+}
+
+.player-side .combat-team {
+  justify-content: start;
+}
+
+.enemy-side .combat-team {
+  justify-content: end;
+  direction: rtl;
+}
+
+.enemy-side .pet-card {
+  direction: ltr;
+}
+
 .battlefield {
   display: grid;
-  grid-template-columns: minmax(110px, 170px) auto minmax(110px, 170px);
-  justify-content: center;
+  grid-template-columns: minmax(110px, 1fr) auto minmax(110px, 1fr);
   align-items: center;
   gap: 12px;
+}
+
+#playerPlayed {
+  justify-self: end;
+}
+
+#opponentPlayed {
+  justify-self: start;
 }
 
 .played-card {
@@ -683,6 +726,35 @@ h2 {
     grid-template-columns: repeat(3, minmax(82px, 1fr));
   }
 
+  .teams-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .team-side .combat-team {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 3px;
+    overflow: hidden;
+  }
+
+  .team-side h2 {
+    font-size: .94rem;
+  }
+
+  .team-side .pet-card {
+    height: 64px;
+    padding: 3px;
+    border-width: 1px;
+  }
+
+  .team-side .pet-card strong {
+    font-size: .68rem;
+  }
+
+  .team-side .pet-card small,
+  .team-side .stat-line {
+    display: none;
+  }
+
   .pet-card {
     height: 88px;
   }
@@ -703,10 +775,6 @@ h2 {
     min-height: 38px;
     padding: 7px 5px;
     font-size: .84rem;
-  }
-
-  .teams-row {
-    grid-template-columns: 1fr;
   }
 
   .battlefield {
