@@ -8,121 +8,103 @@
 </head>
 <body>
   <main class="game-shell">
-    <section class="scoreboard" aria-label="遊戲狀態">
-      <div>
-        <span class="label">隊伍</span>
-        <strong id="playerScore">0/0</strong>
-      </div>
-      <div class="round-pill"><span id="roundNumber">金幣 0</span></div>
-      <div>
-        <span class="label">威脅</span>
-        <strong id="opponentScore">0</strong>
-      </div>
+    <section class="top-bar" aria-label="遊戲狀態">
+      <div><span>隊</span><strong id="playerScore">0/0</strong></div>
+      <div><span>G</span><strong id="roundNumber">0</strong></div>
+      <div><span>敵</span><strong id="opponentScore">0</strong></div>
+      <button class="icon-btn" id="saveButton" type="button" title="存檔">存</button>
     </section>
 
     <section class="map-screen" id="mapScreen">
-      <div class="map-header">
+      <div class="map-head">
         <div>
-          <h1>召喚寵物戰鬥訓練師</h1>
-          <p id="mapText">10x10 地圖。你移動後，敵人會追殺；村民與道具能幫你撐到打倒 3 位 Boss。</p>
+          <h1>寵物訓練師</h1>
+          <p id="mapText">擲骰移動，敵人回合追殺。擊敗 3 位 Boss。</p>
         </div>
         <div class="dice-panel">
           <div class="dice" id="diceValue">?</div>
-          <button class="primary-btn" id="diceButton" type="button">丟骰子</button>
+          <button class="primary-btn" id="diceButton" type="button">擲骰</button>
         </div>
       </div>
 
-      <div class="map-layout">
-        <section class="pet-panel">
-          <div class="panel-title">
-            <h2>寵物隊伍</h2>
-            <span id="teamSummary">全隊自動戰鬥</span>
-          </div>
-          <div class="pet-roster" id="deckChoices"></div>
-        </section>
-
-        <section class="map-board-wrap">
-          <div class="legend-row">
-            <span><b class="legend hero"></b>訓練師</span>
-            <span><b class="legend enemy"></b>敵</span>
-            <span><b class="legend boss"></b>Boss</span>
-            <span><b class="legend villager"></b>村</span>
-            <span><b class="legend item"></b>物</span>
-          </div>
-          <div class="map-board" id="mapBoard" aria-label="10x10 遊戲地圖"></div>
-        </section>
-
-        <aside class="side-panels">
-          <section class="shop-panel">
-            <div class="panel-title">
-              <h2>商店</h2>
-              <span>無復活</span>
-            </div>
-            <div class="shop-actions">
-              <button class="secondary-btn" id="healButton" type="button">群體回血 25G</button>
-              <button class="secondary-btn" id="trainButton" type="button">訓練主力 30G</button>
-              <button class="secondary-btn" id="buyPotionButton" type="button">藥草 15G</button>
-              <button class="secondary-btn" id="buyWardButton" type="button">守護符 20G</button>
-            </div>
-          </section>
-
-          <section class="bag-panel">
-            <div class="panel-title">
-              <h2>背包</h2>
-              <span>道具</span>
-            </div>
-            <div class="bag-actions" id="bagActions"></div>
-          </section>
-
-          <section class="event-panel">
-            <div class="panel-title">
-              <h2>事件</h2>
-              <span>村民幫助</span>
-            </div>
-            <div id="eventText">找村民、撿道具、避開追殺。</div>
-          </section>
-        </aside>
+      <div class="map-main">
+        <div class="map-board" id="mapBoard" aria-label="10x10 遊戲地圖"></div>
       </div>
+
+      <nav class="bottom-tabs" aria-label="功能分頁">
+        <button class="tab-btn is-active" data-tab="team" type="button">隊</button>
+        <button class="tab-btn" data-tab="bag" type="button">包</button>
+        <button class="tab-btn" data-tab="shop" type="button">店</button>
+        <button class="tab-btn" data-tab="event" type="button">事</button>
+      </nav>
+
+      <section class="tab-dock">
+        <div class="tab-panel is-active" id="teamTab">
+          <div class="panel-title"><h2>隊伍</h2><span id="teamSummary">5 上場</span></div>
+          <div class="pet-roster" id="deckChoices"></div>
+        </div>
+        <div class="tab-panel" id="bagTab">
+          <div class="panel-title"><h2>背包</h2><span>道具</span></div>
+          <div class="bag-actions" id="bagActions"></div>
+        </div>
+        <div class="tab-panel" id="shopTab">
+          <div class="panel-title"><h2>商店</h2><span>無復活</span></div>
+          <div class="shop-actions">
+            <button class="secondary-btn" id="healButton" type="button">♥ 25G</button>
+            <button class="secondary-btn" id="trainButton" type="button">訓 30G</button>
+            <button class="secondary-btn" id="buyPotionButton" type="button">藥 15G</button>
+            <button class="secondary-btn" id="buyWardButton" type="button">符 20G</button>
+          </div>
+        </div>
+        <div class="tab-panel" id="eventTab">
+          <div class="panel-title"><h2>事件</h2><span>短訊</span></div>
+          <div id="eventText">村民、道具、Boss、追殺。</div>
+        </div>
+      </section>
     </section>
 
-    <section class="table is-hidden" id="battleScreen">
-      <div class="side opponent-side">
-        <h1>寵物戰鬥</h1>
-        <p id="statusText">全隊自動上場。</p>
-        <div class="opponent-hand" id="opponentHand" aria-label="敵方寵物"></div>
-      </div>
+    <section class="battle-screen is-hidden" id="battleScreen">
+      <header class="battle-head">
+        <div>
+          <h1>讀秒戰鬥</h1>
+          <p id="statusText">最多 5 隻寵物上場，行動條滿後選技能。</p>
+        </div>
+        <button class="secondary-btn is-hidden" id="continueButton" type="button">返回</button>
+      </header>
 
-      <div class="battlefield" aria-label="對戰區">
-        <article class="played-card hidden-card" id="opponentPlayed">
-          <span class="card-mark">敵</span>
-          <small>敵方先鋒</small>
+      <section class="teams-row">
+        <div>
+          <h2>我方</h2>
+          <div class="combat-team" id="battleChoices"></div>
+        </div>
+        <div>
+          <h2>敵方</h2>
+          <div class="combat-team" id="opponentHand"></div>
+        </div>
+      </section>
+
+      <section class="battlefield" aria-label="對戰區">
+        <article class="played-card" id="playerPlayed">
+          <span class="card-mark">我</span>
+          <small>待機</small>
         </article>
         <div class="versus">VS</div>
-        <article class="played-card empty-card" id="playerPlayed">
-          <span class="card-mark">我</span>
-          <small>我方先鋒</small>
+        <article class="played-card" id="opponentPlayed">
+          <span class="card-mark">敵</span>
+          <small>待機</small>
         </article>
-      </div>
+      </section>
 
-      <div class="side player-side">
-        <div class="deck-builder" id="deckBuilder">
-          <h2>出戰隊伍</h2>
-          <div class="choices" id="battleChoices"></div>
-          <div class="deck-slots" id="deckSlots" aria-label="戰鬥規則"></div>
-          <button class="primary-btn" id="startButton" type="button" disabled>開始自動戰鬥</button>
-        </div>
-
-        <div class="hand-area is-hidden" id="handArea">
-          <h2>戰鬥紀錄</h2>
-          <div class="battle-log" id="playerHand"></div>
-        </div>
-      </div>
+      <section class="command-panel">
+        <div class="active-line" id="deckSlots">等待行動條。</div>
+        <div class="skill-bar" id="playerHand"></div>
+        <button class="primary-btn" id="startButton" type="button">開始</button>
+      </section>
     </section>
 
     <section class="log-panel" aria-live="polite">
-      <div id="resultText">準備開始冒險。</div>
-      <button class="secondary-btn is-hidden" id="continueButton" type="button">返回地圖</button>
-      <button class="secondary-btn" id="resetButton" type="button">重新開始</button>
+      <div id="resultText">讀取中。</div>
+      <button class="secondary-btn" id="resetButton" type="button">新局</button>
     </section>
   </main>
 
