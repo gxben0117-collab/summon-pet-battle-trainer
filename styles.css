@@ -476,7 +476,8 @@ h2 {
 .teams-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  align-items: start;
+  gap: clamp(20px, 18vw, 180px);
 }
 
 .team-side {
@@ -495,10 +496,16 @@ h2 {
 
 .enemy-side {
   text-align: right;
+  justify-items: end;
 }
 
 .team-side .combat-team {
-  grid-template-columns: repeat(5, minmax(48px, 92px));
+  width: min(100%, 250px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(70px, 92px));
+  grid-template-rows: repeat(5, minmax(46px, 58px));
+  align-items: center;
+  gap: 6px 12px;
   overflow: hidden;
 }
 
@@ -508,26 +515,71 @@ h2 {
 
 .enemy-side .combat-team {
   justify-content: end;
-  direction: rtl;
 }
 
-.enemy-side .pet-card {
-  direction: ltr;
+.team-side .combat-card {
+  height: 58px;
+  padding: 4px;
+  border-radius: 999px;
+  position: relative;
+}
+
+.team-side .combat-card strong {
+  font-size: .78rem;
+}
+
+.team-side .combat-card small,
+.team-side .combat-card .stat-line {
+  display: none;
+}
+
+.team-side .combat-card .pet-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.player-side .combat-card:nth-child(1) { grid-column: 2; grid-row: 1; }
+.player-side .combat-card:nth-child(2) { grid-column: 1; grid-row: 2; }
+.player-side .combat-card:nth-child(3) { grid-column: 2; grid-row: 3; }
+.player-side .combat-card:nth-child(4) { grid-column: 1; grid-row: 4; }
+.player-side .combat-card:nth-child(5) { grid-column: 2; grid-row: 5; }
+
+.enemy-side .combat-card:nth-child(1) { grid-column: 1; grid-row: 1; }
+.enemy-side .combat-card:nth-child(2) { grid-column: 2; grid-row: 2; }
+.enemy-side .combat-card:nth-child(3) { grid-column: 1; grid-row: 3; }
+.enemy-side .combat-card:nth-child(4) { grid-column: 2; grid-row: 4; }
+.enemy-side .combat-card:nth-child(5) { grid-column: 1; grid-row: 5; }
+
+.player-side .combat-card:nth-child(1),
+.player-side .combat-card:nth-child(3),
+.player-side .combat-card:nth-child(5),
+.enemy-side .combat-card:nth-child(1),
+.enemy-side .combat-card:nth-child(3),
+.enemy-side .combat-card:nth-child(5) {
+  transform: translateY(-2px);
+}
+
+.player-side .combat-card:nth-child(2),
+.player-side .combat-card:nth-child(4),
+.enemy-side .combat-card:nth-child(2),
+.enemy-side .combat-card:nth-child(4) {
+  opacity: .92;
 }
 
 .battlefield {
   display: grid;
-  grid-template-columns: minmax(110px, 1fr) auto minmax(110px, 1fr);
+  grid-template-columns: minmax(120px, 1fr) auto minmax(120px, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: clamp(8px, 5vw, 44px);
+  padding-inline: clamp(4px, 8vw, 110px);
 }
 
 #playerPlayed {
-  justify-self: end;
+  justify-self: start;
 }
 
 #opponentPlayed {
-  justify-self: start;
+  justify-self: end;
 }
 
 .played-card {
@@ -728,11 +780,14 @@ h2 {
 
   .teams-row {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
   }
 
   .team-side .combat-team {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 3px;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(40px, 1fr));
+    grid-template-rows: repeat(5, 34px);
+    gap: 3px 5px;
     overflow: hidden;
   }
 
@@ -740,19 +795,20 @@ h2 {
     font-size: .94rem;
   }
 
-  .team-side .pet-card {
-    height: 64px;
-    padding: 3px;
+  .team-side .combat-card {
+    height: 34px;
+    min-height: 0;
+    padding: 2px;
     border-width: 1px;
   }
 
-  .team-side .pet-card strong {
-    font-size: .68rem;
+  .team-side .combat-card .pet-icon {
+    width: 20px;
+    height: 20px;
   }
 
-  .team-side .pet-card small,
-  .team-side .stat-line {
-    display: none;
+  .team-side .combat-card strong {
+    font-size: .58rem;
   }
 
   .pet-card {
