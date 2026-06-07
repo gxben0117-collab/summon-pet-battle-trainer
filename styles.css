@@ -137,7 +137,7 @@ button {
 }
 
 .shop-actions {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .map-header {
@@ -370,6 +370,11 @@ h2 {
 .enemy-pet-card {
   cursor: default;
   border-color: var(--danger);
+}
+
+.fainted-pet {
+  filter: grayscale(1);
+  opacity: .52;
 }
 
 .pet-icon {
@@ -782,6 +787,10 @@ h2 {
 
   .pet-roster,
   .shop-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pet-roster {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
