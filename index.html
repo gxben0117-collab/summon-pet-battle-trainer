@@ -9,9 +9,9 @@
 <body>
   <main class="game-shell">
     <section class="top-bar" aria-label="遊戲狀態">
-      <div><span>隊</span><strong id="playerScore">0/0</strong></div>
+      <div><span>Lv</span><strong id="playerScore">1</strong></div>
       <div><span>G</span><strong id="roundNumber">0</strong></div>
-      <div><span>敵</span><strong id="opponentScore">0</strong></div>
+      <div><span>AP</span><strong id="opponentScore">60/60</strong></div>
       <button class="icon-btn" id="saveButton" type="button" title="存檔">存</button>
     </section>
 
@@ -19,11 +19,11 @@
       <div class="map-head">
         <div>
           <h1>寵物訓練師</h1>
-          <p id="mapText">擲骰移動，敵人回合追殺。擊敗 3 位 Boss。</p>
+          <p id="mapText">10 格內移動，每步消耗 1 AP。AP 每 3 分鐘回 1。</p>
         </div>
-        <div class="dice-panel">
-          <div class="dice" id="diceValue">?</div>
-          <button class="primary-btn" id="diceButton" type="button">擲骰</button>
+        <div class="move-panel">
+          <div class="ap-meter" id="diceValue">60</div>
+          <button class="primary-btn" id="diceButton" type="button">移動</button>
         </div>
       </div>
 
@@ -32,33 +32,43 @@
       </div>
 
       <nav class="bottom-tabs" aria-label="功能分頁">
-        <button class="tab-btn is-active" data-tab="team" type="button">隊</button>
-        <button class="tab-btn" data-tab="bag" type="button">包</button>
+        <button class="tab-btn is-active" data-tab="adventure" type="button">圖</button>
+        <button class="tab-btn" data-tab="profile" type="button">人</button>
+        <button class="tab-btn" data-tab="pets" type="button">寵</button>
+        <button class="tab-btn" data-tab="items" type="button">具</button>
         <button class="tab-btn" data-tab="shop" type="button">店</button>
-        <button class="tab-btn" data-tab="event" type="button">事</button>
       </nav>
 
       <section class="tab-dock">
-        <div class="tab-panel is-active" id="teamTab">
-          <div class="panel-title"><h2>隊伍</h2><span id="teamSummary">5 上場</span></div>
+        <div class="tab-panel is-active" id="adventureTab">
+          <div class="panel-title"><h2>冒險</h2><span>地圖</span></div>
+          <div class="quick-stats" id="eventText">探索中</div>
+        </div>
+        <div class="tab-panel" id="profileTab">
+          <div class="panel-title"><h2>人物</h2><span>資料</span></div>
+          <div class="profile-grid" id="profileStats"></div>
+        </div>
+        <div class="tab-panel" id="petsTab">
+          <div class="panel-title"><h2>寵物</h2><span id="teamSummary">5 上場</span></div>
+          <div class="pet-actions">
+            <button class="secondary-btn" id="healButton" type="button">♥</button>
+            <button class="secondary-btn" id="trainButton" type="button">訓</button>
+            <button class="secondary-btn" id="reviveButton" type="button">復</button>
+          </div>
           <div class="pet-roster" id="deckChoices"></div>
         </div>
-        <div class="tab-panel" id="bagTab">
-          <div class="panel-title"><h2>背包</h2><span>道具</span></div>
+        <div class="tab-panel" id="itemsTab">
+          <div class="panel-title"><h2>道具</h2><span>背包</span></div>
           <div class="bag-actions" id="bagActions"></div>
         </div>
         <div class="tab-panel" id="shopTab">
-          <div class="panel-title"><h2>商店</h2><span>無復活</span></div>
+          <div class="panel-title"><h2>商店</h2><span>補給</span></div>
           <div class="shop-actions">
-            <button class="secondary-btn" id="healButton" type="button">♥ 25G</button>
-            <button class="secondary-btn" id="trainButton" type="button">訓 30G</button>
             <button class="secondary-btn" id="buyPotionButton" type="button">藥 15G</button>
             <button class="secondary-btn" id="buyWardButton" type="button">符 20G</button>
+            <button class="secondary-btn" id="buySnareButton" type="button">網 25G</button>
+            <button class="secondary-btn" id="buyWhistleButton" type="button">哨 40G</button>
           </div>
-        </div>
-        <div class="tab-panel" id="eventTab">
-          <div class="panel-title"><h2>事件</h2><span>短訊</span></div>
-          <div id="eventText">村民、道具、Boss、追殺。</div>
         </div>
       </section>
     </section>

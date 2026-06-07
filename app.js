@@ -7,6 +7,8 @@ const VILLAGER_COUNT = 7;
 const ITEM_COUNT = 9;
 const MAX_FIELD_PETS = 5;
 const ATB_LIMIT = 100;
+const MAX_MOVE_RANGE = 10;
+const AP_REGEN_MS = 180000;
 const confettiColors = ['#f5b84b', '#4bc6a8', '#ef6b6b', '#67a7ff', '#f5f7fb'];
 let petIdSeed = 1;
 let battleTimer = null;
@@ -46,6 +48,7 @@ const items = {
 
 const state = {
   mode: 'map',
+  trainer: { level: 1, exp: 0, ap: 60, apMax: 60, lastApAt: Date.now() },
   gold: 60,
   pets: [],
   activePetId: null,
@@ -77,11 +80,15 @@ const continueButton = $('#continueButton');
 const saveButton = $('#saveButton');
 const healButton = $('#healButton');
 const trainButton = $('#trainButton');
+const reviveButton = $('#reviveButton');
 const buyPotionButton = $('#buyPotionButton');
 const buyWardButton = $('#buyWardButton');
+const buySnareButton = $('#buySnareButton');
+const buyWhistleButton = $('#buyWhistleButton');
 const bagActions = $('#bagActions');
 const teamSummary = $('#teamSummary');
 const eventText = $('#eventText');
+const profileStats = $('#profileStats');
 const playerPlayed = $('#playerPlayed');
 const opponentPlayed = $('#opponentPlayed');
 const playerScore = $('#playerScore');
@@ -174,6 +181,50 @@ function petPowerLevel() {
   return Math.max(1, ...state.pets.map((pet) => pet.level));
 }
 
+function nextTrainerExp() {
+  return state.trainer.level * 90;
+}
+
+function trainerApMax(level = state.trainer.level) {
+  return 60 + (level - 1) * 5;
+}
+
+function normalizeTrainer() {
+  state.trainer.level = Math.max(1, state.trainer.level || 1);
+  state.trainer.exp = Math.max(0, state.trainer.exp || 0);
+  state.trainer.apMax = trainerApMax();
+  state.trainer.ap = Math.max(0, Math.min(state.trainer.ap ?? state.trainer.apMax, state.trainer.apMax));
+  state.trainer.lastApAt = state.trainer.lastApAt || Date.now();
+}
+
+function refreshAp() {
+  normalizeTrainer();
+  if (state.trainer.ap >= state.trainer.apMax) {
+    state.trainer.lastApAt = Date.now();
+    return;
+  }
+  const now = Date.now();
+  const gained = Math.floor((now - state.trainer.lastApAt) / AP_REGEN_MS);
+  if (gained <= 0) return;
+  state.trainer.ap = Math.min(state.trainer.apMax, state.trainer.ap + gained);
+  state.trainer.lastApAt += gained * AP_REGEN_MS;
+  if (state.trainer.ap >= state.trainer.apMax) state.trainer.lastApAt = now;
+}
+
+function grantTrainerExp(amount) {
+  state.trainer.exp += amount;
+  let leveled = false;
+  while (state.trainer.exp >= nextTrainerExp()) {
+    state.trainer.exp -= nextTrainerExp();
+    state.trainer.level += 1;
+    state.trainer.apMax = trainerApMax();
+    state.trainer.ap = state.trainer.apMax;
+    state.trainer.lastApAt = Date.now();
+    leveled = true;
+  }
+  return leveled;
+}
+
 function teamText() {
   return `${livingPets().length}/${state.pets.length}`;
 }
@@ -212,11 +263,11 @@ function placeSet(count, blocked, minStartDistance) {
   return placed;
 }
 
-function getAvailableMoves(roll) {
+function getAvailableMoves(range) {
   const moves = new Set();
   for (let cell = 0; cell < MAP_SIZE * MAP_SIZE; cell += 1) {
     const distance = distanceBetween(state.playerCell, cell);
-    if (distance > 0 && distance <= roll) moves.add(cell);
+    if (distance > 0 && distance <= range) moves.add(cell);
   }
   return moves;
 }
@@ -265,6 +316,23 @@ function renderInventory() {
   });
 }
 
+function renderProfile() {
+  refreshAp();
+  const itemSummary = Object.entries(state.inventory)
+    .map(([key, count]) => `${items[key].icon}${count}`)
+    .join(' ');
+  profileStats.innerHTML = `
+    <div><span>Lv</span><strong>${state.trainer.level}</strong></div>
+    <div><span>EXP</span><strong>${state.trainer.exp}/${nextTrainerExp()}</strong></div>
+    <div><span>AP</span><strong>${state.trainer.ap}/${state.trainer.apMax}</strong></div>
+    <div><span>G</span><strong>${state.gold}</strong></div>
+    <div><span>隊</span><strong>${teamText()}</strong></div>
+    <div><span>敵</span><strong>${threatText()}</strong></div>
+    <div><span>具</span><strong>${itemSummary}</strong></div>
+    <div><span>位</span><strong>R${rowOf(state.playerCell) + 1} C${colOf(state.playerCell) + 1}</strong></div>
+  `;
+}
+
 function renderMap() {
   mapBoard.innerHTML = '';
   for (let cell = 0; cell < MAP_SIZE * MAP_SIZE; cell += 1) {
@@ -296,33 +364,46 @@ function setTile(tile, className, text) {
 
 function showMap() {
   stopBattleTimer();
+  refreshAp();
   state.mode = 'map';
   mapScreen.classList.remove('is-hidden');
   battleScreen.classList.add('is-hidden');
-  diceButton.disabled = state.gameOver || state.victory || state.availableMoves.size > 0;
-  playerScore.textContent = teamText();
-  opponentScore.textContent = threatText();
+  diceButton.disabled = state.gameOver || state.victory || state.availableMoves.size > 0 || state.trainer.ap <= 0;
+  playerScore.textContent = state.trainer.level;
+  opponentScore.textContent = `${state.trainer.ap}/${state.trainer.apMax}`;
   roundNumber.textContent = state.gold;
   renderRoster();
   renderInventory();
+  renderProfile();
   renderMap();
+  diceValue.textContent = state.trainer.ap;
   saveGame(false);
 }
 
 function rollDice() {
   if (state.mode !== 'map' || state.gameOver || state.victory || state.availableMoves.size > 0) return;
-  const roll = Math.floor(Math.random() * 6) + 1;
-  state.availableMoves = getAvailableMoves(roll);
-  diceValue.textContent = roll;
+  refreshAp();
+  if (state.trainer.ap <= 0) {
+    resultText.className = 'lose';
+    resultText.textContent = 'AP不足';
+    showMap();
+    return;
+  }
+  state.availableMoves = getAvailableMoves(MAX_MOVE_RANGE);
+  diceValue.textContent = state.trainer.ap;
   diceButton.disabled = true;
   resultText.className = '';
-  resultText.textContent = `T${state.turn}｜${roll}`;
-  mapText.textContent = '點亮格移動';
+  resultText.textContent = `移動｜AP-${1}`;
+  mapText.textContent = '10格內選點';
   renderMap();
 }
 
 function moveToCell(cell) {
   if (!state.availableMoves.has(cell) || state.gameOver || state.victory) return;
+  refreshAp();
+  if (state.trainer.ap <= 0) return;
+  state.trainer.ap -= 1;
+  if (state.trainer.ap < state.trainer.apMax) state.trainer.lastApAt = Date.now();
   state.playerCell = cell;
   state.availableMoves.clear();
   renderMap();
@@ -636,13 +717,15 @@ function giveTeamRewards(type, outcome) {
   const win = outcome === 'win';
   const exp = win ? (type === 'boss' ? 70 : 28) : 12;
   const gold = win ? (type === 'boss' ? 95 : 22) : 8;
+  const trainerExp = win ? (type === 'boss' ? 55 : 18) : 6;
   state.gold += gold;
   let levelUps = 0;
   state.pets.forEach((pet) => {
     pet.exp += exp;
     if (levelUpIfNeeded(pet)) levelUps += 1;
   });
-  return `EXP+${exp} G+${gold}${levelUps ? ` Lv+${levelUps}` : ''}`;
+  const trainerLeveled = grantTrainerExp(trainerExp);
+  return `EXP+${exp} 人+${trainerExp} G+${gold}${levelUps ? ` 寵Lv+${levelUps}` : ''}${trainerLeveled ? ' 人Lv+' : ''}`;
 }
 
 function maybeDropPet(type) {
@@ -775,6 +858,21 @@ function trainActivePet() {
   showMap();
 }
 
+function reviveActivePet() {
+  const pet = state.pets.find((item) => item.id === state.activePetId) || state.pets.find((item) => item.hp <= 0);
+  if (!pet) return;
+  if (pet.hp > 0) {
+    resultText.className = 'lose';
+    resultText.textContent = '未陣亡';
+    return;
+  }
+  if (!spendGold(80)) return;
+  pet.hp = Math.ceil(pet.maxHp * 0.5);
+  resultText.className = 'win';
+  resultText.textContent = `${pet.name} 復活`;
+  showMap();
+}
+
 function buyItem(key, cost) {
   if (!spendGold(cost)) return;
   state.inventory[key] += 1;
@@ -786,6 +884,7 @@ function buyItem(key, cost) {
 function serializeState() {
   return {
     petIdSeed,
+    trainer: state.trainer,
     gold: state.gold,
     pets: state.pets,
     activePetId: state.activePetId,
@@ -823,6 +922,16 @@ function loadGame() {
     if (!raw) return false;
     const data = JSON.parse(raw);
     petIdSeed = data.petIdSeed || 1;
+    state.trainer = {
+      level: 1,
+      exp: 0,
+      ap: 60,
+      apMax: 60,
+      lastApAt: Date.now(),
+      ...(data.trainer || {}),
+    };
+    normalizeTrainer();
+    refreshAp();
     state.gold = data.gold ?? 60;
     state.pets = normalizePets(data.pets || []);
     state.activePetId = data.activePetId || state.pets[0]?.id || null;
@@ -886,6 +995,7 @@ function resetGame() {
   localStorage.removeItem(SAVE_KEY);
   petIdSeed = 1;
   state.mode = 'map';
+  state.trainer = { level: 1, exp: 0, ap: 60, apMax: 60, lastApAt: Date.now() };
   state.gold = 60;
   state.pets = [
     makePet(petCatalog[0], 1),
@@ -933,8 +1043,14 @@ diceButton.addEventListener('click', rollDice);
 saveButton.addEventListener('click', () => saveGame(true));
 healButton.addEventListener('click', healPets);
 trainButton.addEventListener('click', trainActivePet);
+reviveButton.addEventListener('click', reviveActivePet);
 buyPotionButton.addEventListener('click', () => buyItem('herb', 15));
 buyWardButton.addEventListener('click', () => buyItem('ward', 20));
+buySnareButton.addEventListener('click', () => buyItem('snare', 25));
+buyWhistleButton.addEventListener('click', () => buyItem('whistle', 40));
 
 setupTabs();
 if (!loadGame()) resetGame();
+setInterval(() => {
+  if (state.mode === 'map') showMap();
+}, 30000);
